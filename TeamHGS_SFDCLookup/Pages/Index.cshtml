@@ -8,3 +8,14 @@
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
+Return URL= @Model.ReturnUrl
+<a href="@Model.ReturnUrl">Login to Salesforce</a>
+<form>
+    <select asp-for="OBU">
+        <option value="1">All</option>
+        <option value="2">NACET</option>
+    </select>
+    By Email: <input asp-for="ByEmail"/>
+    By Name: <input asp-for="ByName"/>
+    By Company: <input asp-for="ByCompany"/>
+</form>
