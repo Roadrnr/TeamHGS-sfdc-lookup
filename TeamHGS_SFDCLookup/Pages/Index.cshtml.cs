@@ -44,7 +44,7 @@ namespace TeamHGS_SFDCLookup.Pages
                     _config["Salesforce:AuthUrl"], // if using sandbox org then replace login with test
                     ResponseTypes.Code,
                     _config["Salesforce:ConsumerKey"],
-                    HttpUtility.UrlEncode("https://localhost:44346/"));
+                    HttpUtility.UrlEncode("https://localhost:44346/callback"));
         }
     }
 }
