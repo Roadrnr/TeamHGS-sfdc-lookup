@@ -6,16 +6,41 @@
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
-Return URL= @Model.ReturnUrl
-<a href="@Model.ReturnUrl">Login to Salesforce</a>
-<form>
-    <select asp-for="OBU">
-        <option value="1">All</option>
-        <option value="2">NACET</option>
-    </select><br/>
-    By Email: <input asp-for="ByEmail"/><br/>
-    By Name: <input asp-for="ByName"/><br/>
-    By Company: <input asp-for="ByCompany"/><br/>
-</form>
+@if (!Model.IsAuthenticated)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <a href="@Model.ReturnUrl" class="btn btn-primary">Log In with Salesforce</a>
+        </div>
+    </div>
+}
+else
+{
+    <h2>Congratulations! You're logged in.</h2>
+    <a asp-page="/GetUsers">Get Users</a>
+    <h3>Lookup</h3>
+    <form>
+        <input type="text" id="Name" name="Name" value="" placeholder="Name" />
+        <input type="text" id="Email" name="Email" value="" placeholder="Email Address" />
+        <input type="text" id="Company" name="Company" value="" placeholder="Company" /><br/>
+        <select asp-for="OBU">
+            <option value="1">All</option>
+            <option value="2">NACET</option>
+        </select><br />
+        By Email: <input asp-for="ByEmail" /><br />
+        By Name: <input asp-for="ByName" /><br />
+        By Company: <input asp-for="ByCompany" /><br />
+        <input type="submit" value="Submit" />
+    </form>
+
+    <ul>
+        @foreach (var a in Model.Accounts)
+        {
+            <li>@a.Id - @a.Name</li>
+        }
+    </ul>
+
+    <h3>Refresh Token</h3>
+    <a asp-page="GetRefreshToken" asp-route-token="@Model.RefreshToken">Refresh the Token</a>
+}

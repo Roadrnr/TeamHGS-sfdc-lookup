@@ -12,12 +12,6 @@ namespace TeamHGS_SFDCLookup.Pages
     public class CallbackModel : PageModel
     {
         private readonly IConfiguration _config;
-        public string InstanceUrl { get; set; }
-        public string RefreshToken { get; set; }
-        public string Token { get; set; }
-        public string ApiVersion { get; set; }
-        public List<Account> Accounts { get; set; }
-
 
         public CallbackModel(IConfiguration config)
         {
@@ -34,15 +28,12 @@ namespace TeamHGS_SFDCLookup.Pages
                 code,
                 _config["Salesforce:TokenUrl"]);
 
-            InstanceUrl = auth.InstanceUrl;
-            RefreshToken = auth.RefreshToken;
-            Token = auth.AccessToken;
-            ApiVersion = auth.ApiVersion;
+            if (TempData["InstanceUrl"] == null) TempData["InstanceUrl"] = auth.InstanceUrl;
+            if (TempData["RefreshToken"] == null) TempData["RefreshToken"] = auth.RefreshToken;
+            if (TempData["Token"] == null) TempData["Token"] = auth.AccessToken;
+            if (TempData["ApiVersion"] == null) TempData["ApiVersion"] = auth.ApiVersion;
 
-            var client = new ForceClient(InstanceUrl, Token, ApiVersion);
-
-            var accounts = await client.QueryAsync<Account>("SELECT id, name, description FROM Account");
-            Accounts = accounts.Records;
+            if (auth.AccessToken != null) return RedirectToPage("Index");
 
             return Page();
         }

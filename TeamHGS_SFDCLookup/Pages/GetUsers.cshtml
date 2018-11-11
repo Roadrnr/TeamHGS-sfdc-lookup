@@ -1,0 +1,16 @@
+﻿@page
+@model TeamHGS_SFDCLookup.Pages.GetUsersModel
+@{
+    ViewData["Title"] = "GetUsers";
+}
+
+<h1>GetUsers</h1>
+
+<ul>
+    @foreach (var a in Model.Users)
+    {
+        <li>@a.Id - @a.Name</li>
+    }
+</ul>
+
+<a asp-page="Index">Back Home</a>

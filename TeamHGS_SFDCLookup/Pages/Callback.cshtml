@@ -5,20 +5,3 @@
 }
 
 <h1>Callback</h1>
-
-<h2>Congratulations! You're logged in.</h2>
-<h3>You've retrieved the following authorization data.</h3>
-<ul>
-    <li><b>Access Token:</b> @Model.Token</li>
-    <li><b>Refresh Token:</b> @Model.RefreshToken</li>
-    <li><b>API Version:</b> @Model.ApiVersion</li>
-    <li><b>Instance Url:</b> @Model.InstanceUrl</li>
-</ul>
-<h3>Refresh Token</h3>
-<a asp-page="GetRefreshToken" asp-route-token="@Model.RefreshToken">Refresh the Token</a>
-<ul>
-@foreach (var a in Model.Accounts)
-{
-    <li>@a.Name</li>
-}
-</ul>
