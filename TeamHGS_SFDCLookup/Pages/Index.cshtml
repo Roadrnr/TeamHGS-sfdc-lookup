@@ -24,23 +24,38 @@ else
         <input type="text" id="Name" name="Name" value="" placeholder="Name" />
         <input type="text" id="Email" name="Email" value="" placeholder="Email Address" />
         <input type="text" id="Company" name="Company" value="" placeholder="Company" /><br/>
-        <select asp-for="OBU">
-            <option value="1">All</option>
-            <option value="2">NACET</option>
-        </select><br />
-        By Email: <input asp-for="ByEmail" /><br />
-        By Name: <input asp-for="ByName" /><br />
-        By Company: <input asp-for="ByCompany" /><br />
+                                                                                        <select asp-for="ObuId">
+                                                                                            <option value="0">- Select OBU -</option>
+                                                                                            <option value="1">All</option>
+                                                                                            <option value="2">NACET</option>
+                                                                                        </select><br />
         <input type="submit" value="Submit" />
     </form>
 
-    <ul>
-        @foreach (var a in Model.Accounts)
-        {
-            <li>@a.Id - @a.Name</li>
-        }
-    </ul>
+    <table>
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Account</th>
+            <th>OBU</th>
+        </tr>
+        </thead>
+        <tbody>
+            @foreach (var a in Model.Accounts)
+            {
+                <tr>
+                    <td>@a.Id</td>
+                    <td>@a.Name</td>
+                    <td>@a.Email</td>
+                    <td>@a.AccountId</td>
+                    <td>@a.Originating_Business_Unit__c</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
     <h3>Refresh Token</h3>
-    <a asp-page="GetRefreshToken" asp-route-token="@Model.RefreshToken">Refresh the Token</a>
+    <a asp-page="GetRefreshToken" asp-route-token="@Model.SalesForceCredential.RefreshToken">Refresh the Token</a>
 }

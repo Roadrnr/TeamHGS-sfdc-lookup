@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Salesforce.Force;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
@@ -14,6 +13,9 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Newtonsoft.Json.Linq;
+using TeamHGS_SFDCLookup.Services;
+using ForceClient = Salesforce.Force.ForceClient;
+using IForceClient = Salesforce.Force.IForceClient;
 
 namespace TeamHGS_SFDCLookup
 {
@@ -44,6 +46,8 @@ namespace TeamHGS_SFDCLookup
                 });
 
             services.AddTransient<IForceClient, ForceClient>();
+            services.AddTransient<ILookup, Lookup>();
+            services.AddTransient<IImportService, ImportService>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddSingleton<ITempDataProvider, CookieTempDataProvider>();
         }

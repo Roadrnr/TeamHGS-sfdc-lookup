@@ -4,11 +4,18 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <AspNetCoreHostingModel>inprocess</AspNetCoreHostingModel>
     <UserSecretsId>891384c7-a249-4034-87b5-76424515f660</UserSecretsId>
+    <Company>HGS USA, LLC.</Company>
+    <Authors>Wyatt R. Conrad</Authors>
+    <Product>HGS Salesforce Lookup Utility</Product>
+    <Copyright>Wyatt R. Conrad</Copyright>
+    <RepositoryUrl>https://github.com/Roadrnr/TeamHGS-sfdc-lookup</RepositoryUrl>
+    <RepositoryType>GitHub</RepositoryType>
   </PropertyGroup>
 
 
   <ItemGroup>
     <PackageReference Include="DeveloperForce.Force" Version="2.0.7" />
+    <PackageReference Include="EPPlus" Version="4.5.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0-preview3-35497" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.0-preview3-35497" />
@@ -17,6 +24,7 @@
 
   <ItemGroup>
     <Folder Include="Areas\" />
+    <Folder Include="NewFolder\" />
   </ItemGroup>
 
 </Project>

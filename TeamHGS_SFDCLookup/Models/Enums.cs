@@ -4,11 +4,11 @@ namespace TeamHGS_SFDCLookup.Models
 {
     public class Enums
     {
-        public enum OriginatingBusinessUnits
+        public enum Obu
         {
             [Display(Name = "All")]
             All = 1,
-            [Display(Name = "NACET")]
+            [Display(Name = "NA CET")]
             NACET,
             [Display(Name = "UK")]
             UK,
@@ -27,6 +27,15 @@ namespace TeamHGS_SFDCLookup.Models
             AxisPointHealth,
             [Display(Name="Element")]
             Element
+        }
+
+        public enum QueryObject
+        {
+            [Display(Name = "Contacts & Leads")]
+            Both = 1,
+            Contact,
+            Lead,
+            Account
         }
     }
 }
