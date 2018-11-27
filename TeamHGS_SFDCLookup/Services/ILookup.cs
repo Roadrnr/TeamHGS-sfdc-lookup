@@ -6,6 +6,6 @@ namespace TeamHGS_SFDCLookup.Services
 {
     public interface ILookup
     {
-        Task<List<Person>> LookupContact(QueryParameters queryParams, SalesForceCredential sfdCredential);
+        Task<List<Person>> LookupContact(QueryParameters queryParams, Person lookupPerson, SalesForceCredential sfdCredential);
     }
 }

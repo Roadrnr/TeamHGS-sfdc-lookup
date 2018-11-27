@@ -17,6 +17,13 @@ namespace TeamHGS_SFDCLookup.Models
         public string Originating_Business_Unit__c { get; set; }
         public string AccountId { get; set; }
 
+        public string Direct_Phone__c { get; set; }
+        public bool Email_Invalid__c { get; set; }
+        public bool HasOptedOutOfEmail { get; set; }
+        public string Industry_Vertical__c { get; set; }
+        public string LeadSource { get; set; }
+        public string Title { get; set; }
+
         public bool NameMatch { get; set; }
         public bool EmailMatch { get; set; }
         public bool CompanyNameMatch { get; set; }

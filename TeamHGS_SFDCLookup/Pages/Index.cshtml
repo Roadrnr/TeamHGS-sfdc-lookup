@@ -4,9 +4,6 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-</div>
 @if (!Model.IsAuthenticated)
 {
     <div class="row">
@@ -17,45 +14,92 @@
 }
 else
 {
-    <h2>Congratulations! You're logged in.</h2>
-    <a asp-page="/GetUsers">Get Users</a>
-    <h3>Lookup</h3>
-    <form>
-        <input type="text" id="Name" name="Name" value="" placeholder="Name" />
-        <input type="text" id="Email" name="Email" value="" placeholder="Email Address" />
-        <input type="text" id="Company" name="Company" value="" placeholder="Company" /><br/>
-                                                                                        <select asp-for="ObuId">
-                                                                                            <option value="0">- Select OBU -</option>
-                                                                                            <option value="1">All</option>
-                                                                                            <option value="2">NACET</option>
-                                                                                        </select><br />
-        <input type="submit" value="Submit" />
-    </form>
+    <form method="post" enctype="multipart/form-data">
+        <div class="container-fluid">
+        <div class="row my-3">
+            <div class="col"><h3>Lookup By:</h3></div>
+        </div>
+        <div class="row p-0 m-0 my-3">
+            <div class="col">
 
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" asp-for="QueryParams.Name">
+                    <label class="form-check-label" asp-for="QueryParams.Name">
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" asp-for="QueryParams.Email">
+                    <label class="form-check-label" asp-for="QueryParams.Email">
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" asp-for="QueryParams.Company">
+                    <label class="form-check-label" asp-for="QueryParams.Company">
+                    </label>
+                </div>
+            </div>
+            <div class="col">
+                OBU:
+                <select asp-for="QueryParams.ObuId">
+                    <option value="0">- Select OBU -</option>
+                    <option value="1">All</option>
+                    <option value="2">NACET</option>
+                </select>
+            </div>
+            <div class="col"></div>
+        </div>
+        <div class="row my-3">
+            <div class="col-4"><div class="custom-file">
+                <input type="file" class="custom-file-input" asp-for="QueryParams.ImportFile">
+                <label class="custom-file-label" for="customFile">Choose file</label>
+            </div></div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <input class="btn btn-primary" type="submit" value="Lookup"/>
+            </div>
+        </div>
+        </div>
+    </form>
+    if (Model.Accounts != null)
+     {
     <table>
         <thead>
-        <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Account</th>
-            <th>OBU</th>
-        </tr>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Account</th>
+                <th>OBU</th>
+                <th>Phone</th>
+                <th>Email Invalid?</th>
+                <th>Email Opt Out?</th>
+                <th>Industry</th>
+                <th>LeadSource</th>
+                <th>Title</th>
+            </tr>
         </thead>
         <tbody>
+        
             @foreach (var a in Model.Accounts)
-            {
-                <tr>
-                    <td>@a.Id</td>
-                    <td>@a.Name</td>
-                    <td>@a.Email</td>
-                    <td>@a.AccountId</td>
-                    <td>@a.Originating_Business_Unit__c</td>
-                </tr>
-            }
+             {
+                 <tr>
+                     <td>@a.Id</td>
+                     <td>@a.Name</td>
+                     <td>@a.Email</td>
+                     <td>@a.AccountId</td>
+                     <td>@a.Originating_Business_Unit__c</td>
+                     <td>@a.Direct_Phone__c</td>
+                     <td>@a.Email_Invalid__c</td>
+                     <td>@a.HasOptedOutOfEmail</td>
+                     <td>@a.Industry_Vertical__c</td>
+                     <td>@a.LeadSource</td>
+                     <td>@a.Title</td>
+                 </tr>
+             }
+        
         </tbody>
     </table>
-
-    <h3>Refresh Token</h3>
-    <a asp-page="GetRefreshToken" asp-route-token="@Model.SalesForceCredential.RefreshToken">Refresh the Token</a>
+     }
+    
 }

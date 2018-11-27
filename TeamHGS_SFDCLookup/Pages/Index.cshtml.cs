@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Salesforce.Common;
 using Salesforce.Common.Models.Json;
-using Salesforce.Force;
 using TeamHGS_SFDCLookup.Models;
 using TeamHGS_SFDCLookup.Services;
 
@@ -17,28 +15,24 @@ namespace TeamHGS_SFDCLookup.Pages
     {
         private readonly IConfiguration _config;
         private readonly ILookup _lookup;
-        public int ObuId { get; set; }
+        private readonly IImportService _importService;
         public bool IsAuthenticated { get; set; }
         public string ReturnUrl { get; set; }
 
+        [BindProperty]
+        public QueryParameters QueryParams { get; set; }
         
         public List<Person> Accounts { get; set; }
         public SalesForceCredential SalesForceCredential { get; set; }
 
-        public IndexModel(IConfiguration config, ILookup lookup)
+        public IndexModel(IConfiguration config, ILookup lookup, IImportService importService)
         {
             _config = config;
             _lookup = lookup;
-            SalesForceCredential = new SalesForceCredential
-            {
-                InstanceUrl = TempData.Peek("InstanceUrl").ToString(),
-                RefreshToken = TempData.Peek("RefreshToken").ToString(),
-                Token = TempData.Peek("Token").ToString(),
-                ApiVersion = TempData.Peek("ApiVersion").ToString()
-            };
+            _importService = importService;           
         }
 
-        public async Task<IActionResult> OnGetAsync(QueryParameters queryParams)
+        public async Task<IActionResult> OnGetAsync()
         {
             if (TempData.Peek("Token") == null)
             {
@@ -54,9 +48,44 @@ namespace TeamHGS_SFDCLookup.Pages
             else
             {
                 IsAuthenticated = true;
-                Accounts = await _lookup.LookupContact(queryParams, SalesForceCredential);
+                SalesForceCredential = new SalesForceCredential
+                {
+                    InstanceUrl = TempData.Peek("InstanceUrl") as string,
+                    RefreshToken = TempData.Peek("RefreshToken").ToString(),
+                    Token = TempData.Peek("Token").ToString(),
+                    ApiVersion = TempData.Peek("ApiVersion").ToString()
+                };
+
+                Accounts = new List<Person>();
             }
 
+            return Page();
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
+            IsAuthenticated = true;
+            SalesForceCredential = new SalesForceCredential
+            {
+                InstanceUrl = TempData.Peek("InstanceUrl") as string,
+                RefreshToken = TempData.Peek("RefreshToken").ToString(),
+                Token = TempData.Peek("Token").ToString(),
+                ApiVersion = TempData.Peek("ApiVersion").ToString()
+            };
+
+            if (QueryParams.ImportFile.Length > 0)
+            {
+                Accounts = await _importService.Import(QueryParams, SalesForceCredential);
+            }
+            else
+            {
+                var lookupPerson = new Person();
+                Accounts = await _lookup.LookupContact(QueryParams, lookupPerson, SalesForceCredential);
+            }
             return Page();
         }
     }

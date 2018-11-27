@@ -21,20 +21,30 @@
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">HGS Salesforce Lookup Utility</a>
+                <a class="navbar-nav" asp-page="/GetUsers">Get Users</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 @*<div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-page="/Index">Page1</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-page="/Index">Page2</a>
-                    </li>
-                </ul>
-            </div>*@
+            <ul class="navbar-nav flex-grow-1">
+                <li class="nav-item">
+                    <a class="nav-link text-dark" asp-area="" asp-page="/Index">Page1</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" asp-area="" asp-page="/Index">Page2</a>
+                </li>
+            </ul>
+        </div>*@
+                @if (!Model.IsAuthenticated)
+                {
+                    <a href="@Model.ReturnUrl" class="btn btn-primary">Log In with Salesforce</a>
+                }
+                else
+                {
+                    <span>Logged In</span>
+                    <a class="navbar-nav" asp-page="GetRefreshToken" asp-route-token="@Model.SalesForceCredential.RefreshToken">Refresh the Token</a>
+                }
             </div>
         </nav>
     </header>
