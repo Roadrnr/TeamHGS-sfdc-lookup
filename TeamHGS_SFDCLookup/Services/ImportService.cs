@@ -113,6 +113,7 @@ namespace TeamHGS_SFDCLookup.Services
                         if (personResult.Count == 1)
                         {
                             newPerson.AccountId += personResult.First().AccountId;
+                            newPerson.AccountName += personResult.First().AccountName;
                             newPerson.CompanyNameMatchCount = personResult.Count;
                             newPerson.Id = personResult.First().Id;
                             newPerson.Originating_Business_Unit__c = personResult.First().Originating_Business_Unit__c;
@@ -128,17 +129,18 @@ namespace TeamHGS_SFDCLookup.Services
                         {
                             foreach (var found in personResult)
                             {
-                                newPerson.AccountId += $"{found.AccountId}, ";
+                                newPerson.AccountId += $"{found.AccountId}<br/>";
+                                newPerson.AccountName += $"{found.AccountName} ({found.AccountId})<br/>";
                                 newPerson.CompanyNameMatchCount = personResult.Count;
-                                newPerson.Id = $"{found.Id}, ";
-                                newPerson.Originating_Business_Unit__c = $"{found.Originating_Business_Unit__c}, ";
-                                newPerson.Direct_Phone__c = $"{found.Direct_Phone__c}, ";
+                                newPerson.Id += $"{found.Id}<br/>";
+                                newPerson.Originating_Business_Unit__c += $"{found.Originating_Business_Unit__c}<br/>";
+                                newPerson.Direct_Phone__c += $"{found.Direct_Phone__c}<br/>";
                                 newPerson.Email_Invalid__c = found.Email_Invalid__c;
                                 newPerson.HasOptedOutOfEmail = found.HasOptedOutOfEmail;
-                                newPerson.Industry_Vertical__c = $"{found.Industry_Vertical__c}, ";
-                                newPerson.LeadSource = $"{found.LeadSource}, ";
-                                newPerson.Title = $"{found.Title}, ";
-                                newPerson.Description = $"{found.Description}, ";
+                                newPerson.Industry_Vertical__c += $"{found.Industry_Vertical__c}<br/>";
+                                newPerson.LeadSource += $"{found.LeadSource}<br/>";
+                                newPerson.Title += $"{found.Title}<br/>";
+                                newPerson.Description += $"{found.Description}<br/>";
                             }
                         }
                     }

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Salesforce.Common;
@@ -29,10 +30,11 @@ namespace TeamHGS_SFDCLookup.Pages
         {
             _config = config;
             _lookup = lookup;
-            _importService = importService;           
+            _importService = importService;
+            Accounts = new List<Person>();
         }
 
-        public async Task<IActionResult> OnGetAsync()
+        public void OnGet()
         {
             if (TempData.Peek("Token") == null)
             {
@@ -55,19 +57,11 @@ namespace TeamHGS_SFDCLookup.Pages
                     Token = TempData.Peek("Token").ToString(),
                     ApiVersion = TempData.Peek("ApiVersion").ToString()
                 };
-
-                Accounts = new List<Person>();
             }
-
-            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
             IsAuthenticated = true;
             SalesForceCredential = new SalesForceCredential
             {
@@ -76,6 +70,16 @@ namespace TeamHGS_SFDCLookup.Pages
                 Token = TempData.Peek("Token").ToString(),
                 ApiVersion = TempData.Peek("ApiVersion").ToString()
             };
+
+            if (!QueryParams.Company && !QueryParams.Email && !QueryParams.Name)
+            {
+                ModelState.AddModelError("QueryParams.Name","You must choose at least one search criteria.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
 
             if (QueryParams.ImportFile.Length > 0)
             {

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 
 namespace TeamHGS_SFDCLookup.Models
@@ -8,10 +9,10 @@ namespace TeamHGS_SFDCLookup.Models
         public bool Name { get; set; }
         public bool Email { get; set; }
         public bool Company { get; set; }
-        public int ObuId { get; set; }
+        public string Obu { get; set; }
         public int QueryObjectId { get; set; }
         public Enums.QueryObject QueryObject { get; set; }
-
+        [Required]
         public IFormFile ImportFile { get; set; }
     }
 }

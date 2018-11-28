@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TeamHGS_SFDCLookup.Models;
 
@@ -13,7 +14,7 @@ namespace TeamHGS_SFDCLookup.Services
                 sfdCredential.ApiVersion);
 
 
-            var query = "SELECT id, name, email, Account.Name, Direct_Phone__c, Email_Invalid__c, HasOptedOutOfEmail, Industry_Vertical__c, LeadSource, Title, Description, Originating_Business_Unit__c FROM Contact";
+            var query = "SELECT id, name, email, AccountId, Account.Name, Direct_Phone__c, Email_Invalid__c, HasOptedOutOfEmail, Industry_Vertical__c, LeadSource, Title, Description, Originating_Business_Unit__c FROM Contact";
             var useAnd = false;
             if (queryParams != null)
             {
@@ -51,24 +52,32 @@ namespace TeamHGS_SFDCLookup.Services
 
                 }
 
-                if (queryParams.ObuId > 0)
+                if (!string.IsNullOrWhiteSpace(queryParams.Obu))
                 {
                     if (useAnd)
                     {
-                        query = $"{query} AND Originating_Business_Unit__c LIKE '%{queryParams.ObuId}%'";
+                        query = $"{query} AND Originating_Business_Unit__c = '{queryParams.Obu}'";
                     }
                     else
                     {
                         //useAnd = true;
-                        query = $"{query} WHERE Originating_Business_Unit__c LIKE '%{queryParams.ObuId}%'";
+                        query = $"{query} WHERE Originating_Business_Unit__c = '{queryParams.Obu}'";
                     }
 
                 }
             }
 
             query = $"{query} ORDER BY name";
-            var accounts = await client.QueryAsync<Person>(query);
-            return accounts.Records;
+            var contacts = await client.QueryAsync<Person>(query);
+            foreach (var c in contacts.Records)
+            {
+                if (string.IsNullOrWhiteSpace(c.AccountId)) continue;
+
+                var accountQuery = $"SELECT id, name FROM Account WHERE id = '{c.AccountId}'";
+                var account = await client.QueryAsync<Account>(accountQuery);
+                c.AccountName = account.Records.First().Name;
+            }
+            return contacts.Records;
         }
     }
 }
