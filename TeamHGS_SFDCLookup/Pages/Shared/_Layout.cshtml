@@ -21,30 +21,34 @@
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">HGS Salesforce Lookup Utility</a>
-                <a class="navbar-nav" asp-page="/GetUsers">Get Users</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                @*<div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-            <ul class="navbar-nav flex-grow-1">
-                <li class="nav-item">
-                    <a class="nav-link text-dark" asp-area="" asp-page="/Index">Page1</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" asp-area="" asp-page="/Index">Page2</a>
-                </li>
-            </ul>
-        </div>*@
-                @if (!Model.IsAuthenticated)
-                {
-                    <a href="@Model.ReturnUrl" class="btn btn-primary">Log In with Salesforce</a>
-                }
-                else
-                {
-                    <span>Logged In</span>
-                    <a class="navbar-nav" asp-page="GetRefreshToken" asp-route-token="@Model.SalesForceCredential.RefreshToken">Refresh the Token</a>
-                }
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+                    @if (!Model.IsAuthenticated)
+                    {
+                        <ul class="navbar-nav ml-auto">
+                            <li>
+                                <a href="@Model.ReturnUrl" class="nav-link active">Log In</a>
+                            </li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" asp-page="/GetUsers">Get Users</a>
+                            </li>
+                        </ul>
+                        <ul class="navbar-nav">
+                            <li>
+                                <a class="nav-link active" asp-page="GetRefreshToken" asp-route-token="@Model.SalesForceCredential.RefreshToken">Logged In</a></li>
+                        </ul>
+                    }
+                    </div>
             </div>
         </nav>
     </header>

@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Salesforce.Common;
@@ -17,6 +16,8 @@ namespace TeamHGS_SFDCLookup.Pages
         private readonly IConfiguration _config;
         private readonly ILookup _lookup;
         private readonly IImportService _importService;
+        private readonly IExportService _exportService;
+
         public bool IsAuthenticated { get; set; }
         public string ReturnUrl { get; set; }
 
@@ -26,11 +27,12 @@ namespace TeamHGS_SFDCLookup.Pages
         public List<Person> Accounts { get; set; }
         public SalesForceCredential SalesForceCredential { get; set; }
 
-        public IndexModel(IConfiguration config, ILookup lookup, IImportService importService)
+        public IndexModel(IConfiguration config, ILookup lookup, IImportService importService, IExportService exportService)
         {
             _config = config;
             _lookup = lookup;
             _importService = importService;
+            _exportService = exportService;
             Accounts = new List<Person>();
         }
 
@@ -60,7 +62,7 @@ namespace TeamHGS_SFDCLookup.Pages
             }
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostImportAsync()
         {
             IsAuthenticated = true;
             SalesForceCredential = new SalesForceCredential
@@ -90,6 +92,13 @@ namespace TeamHGS_SFDCLookup.Pages
                 var lookupPerson = new Person();
                 Accounts = await _lookup.LookupContact(QueryParams, lookupPerson, SalesForceCredential);
             }
+            return _exportService.ExportResults(Accounts);
+            //return Page();
+        }
+
+        public async Task<IActionResult> OnPostExportAsync()
+        {
+            //await _exportService.ExportResults();
             return Page();
         }
     }

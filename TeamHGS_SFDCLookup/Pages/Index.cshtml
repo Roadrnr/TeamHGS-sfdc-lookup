@@ -1,118 +1,139 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Home";
 }
 
 @if (!Model.IsAuthenticated)
 {
-    <div class="row">
-        <div class="col-md-12">
-            <a href="@Model.ReturnUrl" class="btn btn-primary">Log In with Salesforce</a>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 mt-5">
+                <h1>Welcome to the HGS Salesforce Bulk Lookup Utility</h1>
+                <p>This tool allows you to upload an excel file containing contacts that may or may not exist in Salesforce. It will then lookup each person using specified parameters and let you know if one or more contact records in Salesforce match each contact included in your spreadsheet.</p>
+                <p>Start by logging in below...</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <a href="@Model.ReturnUrl" class="btn btn-primary">Log In with Salesforce</a>
+            </div>
         </div>
     </div>
 }
 else
 {
-    <form method="post" enctype="multipart/form-data">
-        <div class="container-fluid">
-        <div class="row my-3">
-            <div class="col"><h3>Lookup By:</h3></div>
-        </div>
-        <div class="row p-0 m-0 my-3">
-            <div class="col">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="QueryParams.Name">
-                    <label class="form-check-label" asp-for="QueryParams.Name">
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="QueryParams.Email">
-                    <label class="form-check-label" asp-for="QueryParams.Email">
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="QueryParams.Company">
-                    <label class="form-check-label" asp-for="QueryParams.Company">
-                    </label>
-                </div>
-                <span asp-validation-for="QueryParams.Name" class="text-danger"></span>
+    <div class="container-fluid">
+        <form method="post" enctype="multipart/form-data">
+
+            <div class="row my-3">
+                <div class="col"><h3>Lookup By:</h3></div>
             </div>
-            <div class="col">
-                OBU:
-                <select asp-for="QueryParams.Obu">
-                    <option value="">All</option>
-                    <option value="NA CET">NA CET</option>
-                    <option value="Healthcare">Healthcare</option>
-                    <option value="Colibrium">Colibrium</option>
-                    <option value="India Domestic">India Domestic</option>
-                    <option value="Latin America">Latin America</option>
-                    <option value="Middle East">Middle East</option>
-                    <option value="APAC">APAC</option>
-                    <option value="UK">UK</option>
-                    <option value="Axis Point Health">Axis Point Health</option>
-                    <option value="Element">Element</option>
-                </select>
+            <div class="row p-0 m-0 my-3">
+                <div class="col">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" asp-for="QueryParams.Name">
+                        <label class="form-check-label" asp-for="QueryParams.Name">
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" asp-for="QueryParams.Email">
+                        <label class="form-check-label" asp-for="QueryParams.Email">
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" asp-for="QueryParams.Company">
+                        <label class="form-check-label" asp-for="QueryParams.Company">
+                        </label>
+                    </div>
+                    <span asp-validation-for="QueryParams.Name" class="text-danger"></span>
+                </div>
+                <div class="col">
+                    OBU:
+                    <select asp-for="QueryParams.Obu">
+                        <option value="">All</option>
+                        <option value="NA CET">NA CET</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Colibrium">Colibrium</option>
+                        <option value="India Domestic">India Domestic</option>
+                        <option value="Latin America">Latin America</option>
+                        <option value="Middle East">Middle East</option>
+                        <option value="APAC">APAC</option>
+                        <option value="UK">UK</option>
+                        <option value="Axis Point Health">Axis Point Health</option>
+                        <option value="Element">Element</option>
+                    </select>
+                </div>
+                <div class="col"></div>
             </div>
-            <div class="col"></div>
-        </div>
-        <div class="row my-3">
-            <div class="col-4"><div class="custom-file">
-    <input type="file" class="custom-file-input" asp-for="QueryParams.ImportFile">
-    <label class="custom-file-label" for="customFile">Choose file</label>
-    <span asp-validation-for="QueryParams.ImportFile" class="text-danger"></span>
-</div></div>
-        </div>
-        <div class="row">
-            <div class="col">
-                <input class="btn btn-primary" type="submit" value="Lookup"/>
+            <div class="row my-3">
+                <div class="col-4">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" asp-for="QueryParams.ImportFile">
+                        <label class="custom-file-label" asp-for="QueryParams.ImportFile">Choose file</label>
+                        <span asp-validation-for="QueryParams.ImportFile" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-        </div>
-        </div>
-    </form>
+            <div class="row">
+                <div class="col">
+                    <input class="btn btn-primary" type="submit" value="Lookup" asp-page-handler="import" />
+                </div>
+            </div>
+            <div class="row my-2">
+                <div class="col"><hr /></div>
+            </div>
+
+        </form>
+    </div>
     if (Model.Accounts.Count > 0)
-     {
-        <table class="table table-sm table-bordered">
-            <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Account</th>
-                    <th>OBU</th>
-                    <th>Phone</th>
-                    <th>Email Invalid?</th>
-                    <th>Email Opt Out?</th>
-                    <th>Industry</th>
-                    <th>LeadSource</th>
-                    <th>Title</th>
-                </tr>
-            </thead>
-            <tbody>
-
-                @foreach (var a in Model.Accounts)
-                {
+    {
+    <div class="container-fluid">
+        <form method="post">
+            <table class="table table-sm table-bordered table-responsive">
+                <thead>
                     <tr>
-                        <td>@Html.Raw(a.Id)</td>
-                        <td>@a.Name</td>
-                        <td>@a.Email</td>
-                        <td>@Html.Raw(a.AccountName)</td>
-                        <td>@Html.Raw(a.Originating_Business_Unit__c)</td>
-                        <td>@Html.Raw(a.Direct_Phone__c)</td>
-                        <td>@a.Email_Invalid__c</td>
-                        <td>@a.HasOptedOutOfEmail</td>
-                        <td>@Html.Raw(a.Industry_Vertical__c)</td>
-                        <td>@Html.Raw(a.LeadSource)</td>
-                        <td>@Html.Raw(a.Title)</td>
+                        <th>Id</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Account</th>
+                        <th>OBU</th>
+                        <th>Phone</th>
+                        <th>Email Invalid?</th>
+                        <th>Email Opt Out?</th>
+                        <th>Industry</th>
+                        <th>LeadSource</th>
+                        <th>Title</th>
                     </tr>
-                }
+                </thead>
+                <tbody>
+                    @for (var i = 0; i < Model.Accounts.Count; i++)
+                    {
+                        <tr>
+                            <td><input asp-for="@Model.Accounts[i].Id" name="ID-@i" class="form-control-plaintext" style="width: 100px;" /></td>
+                            <td><input asp-for="@Model.Accounts[i].Name" name="Name-@i" /></td>
+                            <td><input asp-for="@Model.Accounts[i].Email" name="Email-@i" /></td>
+                            <td><input asp-for="@Model.Accounts[i].AccountName" name="Account-@i" /></td>
+                            <td><input asp-for="@Model.Accounts[i].Originating_Business_Unit__c" name="OBU-@i" /></td>
+                            <td><input asp-for="@Model.Accounts[i].Direct_Phone__c" name="Phone-@i" /></td>
+                            <td><input asp-for="@Model.Accounts[i].Email_Invalid__c" name="EmailInvalid-@i" /></td>
+                            <td><input asp-for="@Model.Accounts[i].HasOptedOutOfEmail" name="OptOut-@i" /></td>
+                            <td><input asp-for="@Model.Accounts[i].Industry_Vertical__c" name="Industry-@i" /></td>
+                            <td><input asp-for="@Model.Accounts[i].LeadSource" name="LeadSource-@i" /></td>
+                            <td><input asp-for="@Model.Accounts[i].Title" name="Title-@i" /></td>
+                        </tr>
+                    }
 
-            </tbody>
-        </table>
-     }
+                </tbody>
+            </table>
+            <button type="submit" asp-page-handler="export">Export</button>
+        </form>
+    </div>
+    }
 }
 @section Scripts
-{
+    {
     <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.2.0.min.js"></script>
     <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.16.0/jquery.validate.min.js"></script>
     <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>

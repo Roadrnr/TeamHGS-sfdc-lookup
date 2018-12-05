@@ -48,6 +48,7 @@ namespace TeamHGS_SFDCLookup
             services.AddTransient<IForceClient, ForceClient>();
             services.AddTransient<ILookup, Lookup>();
             services.AddTransient<IImportService, ImportService>();
+            services.AddTransient<IExportService, ExportService>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddSingleton<ITempDataProvider, CookieTempDataProvider>();
         }

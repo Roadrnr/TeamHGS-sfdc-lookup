@@ -19,14 +19,13 @@ namespace TeamHGS_SFDCLookup.Services
         public async Task<List<Person>> Import(QueryParameters queryParameters, SalesForceCredential sfdcCredential)
         {
             //Get file
-            var newfile = new FileInfo(queryParameters.ImportFile.FileName);
+            var newFile = new FileInfo(queryParameters.ImportFile.FileName);
 
             //Establish import and error objects
             var importObj = new List<Person>();
-            //var errorObj = new List<Person>();
 
             //Check if file is an Excel File
-            if (!newfile.Extension.Contains(".xls")) throw new Exception("File must be in Excel format.");
+            if (!newFile.Extension.Contains(".xls")) throw new Exception("File must be in Excel format.");
 
             //Create an excel package
             using (var package = new ExcelPackage(queryParameters.ImportFile.OpenReadStream()))
@@ -38,10 +37,12 @@ namespace TeamHGS_SFDCLookup.Services
                 var rowCount = worksheet.Dimension.Rows;
                 var colCount = worksheet.Dimension.Columns;
                 var emailColumn = 0;
-                var accountColumn = 0;
+                var companyColumn = 0;
                 var firstNameColumn = 0;
                 var lastNameColumn = 0;
                 var nameColumn = 0;
+                var titleColumn = 0;
+                var unsubColumn = 0;
                 var searchByFullName = false;
                 //Loop through columns to identify the column number for each of the required columns
                 for (var col = 1; col <= colCount; col++)
@@ -64,27 +65,36 @@ namespace TeamHGS_SFDCLookup.Services
                     {
                         emailColumn = col;
                     }
-                    else if (columnValue.ToLower().Contains("account"))
+                    else if (columnValue.ToLower().Contains("company"))
                     {
-                        accountColumn = col;
+                        companyColumn = col;
+                    }
+                    else if (columnValue.ToLower().Contains("title"))
+                    {
+                        titleColumn = col;
+                    }
+                    else if (columnValue.ToLower().Contains("unsubscribe"))
+                    {
+                        unsubColumn = col;
                     }
                 }
 
                 //Loop through the rows of the worksheet, skipping row 1 (header row)
                 for (var row = 2; row <= rowCount; row++)
                 {
-                    //If Event field is blank exit the for loop
-                    var strValue = worksheet.Cells[row, 1].Value.ToString();
-                    if (string.IsNullOrWhiteSpace(strValue))
+                    //If first field is blank exit the for loop
+                    if (worksheet.Cells[row, 1].Value == null)
                     {
                         break;
                     }
-                    
+
                     //Create temporary result object
                     var newPerson = new Person
                     {
                         Email = worksheet.Cells[row, emailColumn].Value != null ? worksheet.Cells[row, emailColumn].Value.ToString() : "",
-                        AccountName = worksheet.Cells[row, accountColumn].Value == null ? "" : worksheet.Cells[row, accountColumn].Value.ToString()
+                        AccountName = worksheet.Cells[row, companyColumn].Value == null ? "" : worksheet.Cells[row, companyColumn].Value.ToString(),
+                        Title = worksheet.Cells[row, titleColumn].Value == null ? "" : worksheet.Cells[row, titleColumn].Value.ToString(),
+                        HasOptedOutOfEmail = worksheet.Cells[row, unsubColumn].Value == null ? false : true
                     };
 
                     if (searchByFullName)
@@ -93,7 +103,7 @@ namespace TeamHGS_SFDCLookup.Services
                     }
                     else
                     {
-                        newPerson.First = worksheet.Cells[row, firstNameColumn].Value != null ? worksheet.Cells[row, firstNameColumn].Value.ToString(): "";
+                        newPerson.First = worksheet.Cells[row, firstNameColumn].Value != null ? worksheet.Cells[row, firstNameColumn].Value.ToString() : "";
                         newPerson.Last = worksheet.Cells[row, lastNameColumn].Value != null ? worksheet.Cells[row, lastNameColumn].Value.ToString() : "";
                         newPerson.Name = $"{newPerson.First} {newPerson.Last}";
                     }
@@ -110,49 +120,58 @@ namespace TeamHGS_SFDCLookup.Services
 
                     if (personResult != null && personResult.Count > 0)
                     {
-                        if (personResult.Count == 1)
+                        foreach (var found in personResult)
                         {
-                            newPerson.AccountId += personResult.First().AccountId;
-                            newPerson.AccountName += personResult.First().AccountName;
-                            newPerson.CompanyNameMatchCount = personResult.Count;
-                            newPerson.Id = personResult.First().Id;
-                            newPerson.Originating_Business_Unit__c = personResult.First().Originating_Business_Unit__c;
-                            newPerson.Direct_Phone__c = personResult.First().Direct_Phone__c;
-                            newPerson.Email_Invalid__c = personResult.First().Email_Invalid__c;
-                            newPerson.HasOptedOutOfEmail = personResult.First().HasOptedOutOfEmail;
-                            newPerson.Industry_Vertical__c = personResult.First().Industry_Vertical__c;
-                            newPerson.LeadSource = personResult.First().LeadSource;
-                            newPerson.Title = personResult.First().Title;
-                            newPerson.Description = personResult.First().Description;
-                        }
-                        else
-                        {
-                            foreach (var found in personResult)
+                            var obu = string.IsNullOrWhiteSpace(found.Originating_Business_Unit__c)
+                                ? "No OBU"
+                                : found.Originating_Business_Unit__c;
+
+                            var foundPerson = new Person
                             {
-                                newPerson.AccountId += $"{found.AccountId}<br/>";
-                                newPerson.AccountName += $"{found.AccountName} ({found.AccountId})<br/>";
-                                newPerson.CompanyNameMatchCount = personResult.Count;
-                                newPerson.Id += $"{found.Id}<br/>";
-                                newPerson.Originating_Business_Unit__c += $"{found.Originating_Business_Unit__c}<br/>";
-                                newPerson.Direct_Phone__c += $"{found.Direct_Phone__c}<br/>";
-                                newPerson.Email_Invalid__c = found.Email_Invalid__c;
-                                newPerson.HasOptedOutOfEmail = found.HasOptedOutOfEmail;
-                                newPerson.Industry_Vertical__c += $"{found.Industry_Vertical__c}<br/>";
-                                newPerson.LeadSource += $"{found.LeadSource}<br/>";
-                                newPerson.Title += $"{found.Title}<br/>";
-                                newPerson.Description += $"{found.Description}<br/>";
-                            }
+                                Name = found.Name,
+                                Email = found.Email,
+                                AccountId = $"{found.AccountId}",
+                                AccountName = $"{found.AccountName} ({found.AccountId})",
+                                CompanyNameMatchCount = personResult.Count,
+                                Id = $"{found.Id}",
+                                Originating_Business_Unit__c = $"{obu}",
+                                Direct_Phone__c = $"{found.Direct_Phone__c}",
+                                Email_Invalid__c = found.Email_Invalid__c,
+                                HasOptedOutOfEmail = found.HasOptedOutOfEmail,
+                                Industry_Vertical__c = $"{found.Industry_Vertical__c}",
+                                LeadSource = $"{found.LeadSource}",
+                                Title = $"{found.Title}",
+                                Description = $"{found.Description}"
+                            };
+
+                            importObj.Add(foundPerson);
                         }
                     }
                     else
                     {
-                        newPerson.Id = "NOT FOUND";
-                        newPerson.CompanyNameMatch = false;
-                        newPerson.NameMatch = false;
-                        newPerson.EmailMatch = false;
-                    }
+                        var notFoundPerson = new Person
+                        {
+                            Name = lookupPerson.Name,
+                            Email = lookupPerson.Email,
+                            Id = "NOT FOUND",
+                            CompanyNameMatch = false,
+                            NameMatch = false,
+                            EmailMatch = false,
+                            AccountId = "",
+                            AccountName = lookupPerson.AccountName,
+                            CompanyNameMatchCount = 0,
+                            Originating_Business_Unit__c = "NONE",
+                            Direct_Phone__c = "",
+                            Email_Invalid__c = false,
+                            HasOptedOutOfEmail = lookupPerson.HasOptedOutOfEmail,
+                            Industry_Vertical__c = "",
+                            LeadSource = "",
+                            Title = lookupPerson.Title,
+                            Description = "",
+                        };
 
-                    importObj.Add(newPerson);
+                        importObj.Add(notFoundPerson);
+                    }
 
                 } // End For Loop
 
