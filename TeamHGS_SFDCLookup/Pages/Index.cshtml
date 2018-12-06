@@ -25,67 +25,82 @@
 else
 {
     <div class="container-fluid">
-        <form method="post" enctype="multipart/form-data">
-
-            <div class="row my-3">
-                <div class="col"><h3>Lookup By:</h3></div>
-            </div>
-            <div class="row p-0 m-0 my-3">
-                <div class="col">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" asp-for="QueryParams.Name">
-                        <label class="form-check-label" asp-for="QueryParams.Name">
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" asp-for="QueryParams.Email">
-                        <label class="form-check-label" asp-for="QueryParams.Email">
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" asp-for="QueryParams.Company">
-                        <label class="form-check-label" asp-for="QueryParams.Company">
-                        </label>
-                    </div>
-                    <span asp-validation-for="QueryParams.Name" class="text-danger"></span>
-                </div>
-                <div class="col">
-                    OBU:
-                    <select asp-for="QueryParams.Obu">
-                        <option value="">All</option>
-                        <option value="NA CET">NA CET</option>
-                        <option value="Healthcare">Healthcare</option>
-                        <option value="Colibrium">Colibrium</option>
-                        <option value="India Domestic">India Domestic</option>
-                        <option value="Latin America">Latin America</option>
-                        <option value="Middle East">Middle East</option>
-                        <option value="APAC">APAC</option>
-                        <option value="UK">UK</option>
-                        <option value="Axis Point Health">Axis Point Health</option>
-                        <option value="Element">Element</option>
-                    </select>
-                </div>
-                <div class="col"></div>
-            </div>
-            <div class="row my-3">
-                <div class="col-4">
-                    <div class="custom-file">
-                        <input type="file" class="custom-file-input" asp-for="QueryParams.ImportFile">
-                        <label class="custom-file-label" asp-for="QueryParams.ImportFile">Choose file</label>
-                        <span asp-validation-for="QueryParams.ImportFile" class="text-danger"></span>
+        <div class="row">
+            <div class="col-6">
+                <div class="row my-3">
+                    <div class="col">
+                        <h3>Lookup By:</h3>
                     </div>
                 </div>
+                <form method="post" enctype="multipart/form-data">
+                    <div class="row p-0 m-0 my-3">
+                        <div class="col">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" asp-for="QueryParams.Name">
+                                <label class="form-check-label" asp-for="QueryParams.Name">
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" asp-for="QueryParams.Email">
+                                <label class="form-check-label" asp-for="QueryParams.Email">
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" asp-for="QueryParams.Company">
+                                <label class="form-check-label" asp-for="QueryParams.Company">
+                                </label>
+                            </div>
+                            <span asp-validation-for="QueryParams.Name" class="text-danger"></span>
+                        </div>
+                        <div class="col">
+                            OBU:
+                            <select asp-for="QueryParams.Obu">
+                                <option value="">All</option>
+                                <option value="NA CET">NA CET</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Colibrium">Colibrium</option>
+                                <option value="India Domestic">India Domestic</option>
+                                <option value="Latin America">Latin America</option>
+                                <option value="Middle East">Middle East</option>
+                                <option value="APAC">APAC</option>
+                                <option value="UK">UK</option>
+                                <option value="Axis Point Health">Axis Point Health</option>
+                                <option value="Element">Element</option>
+                            </select>
+                        </div>
+                        <div class="col"></div>
+                    </div>
+                    <div class="row my-3">
+                        <div class="col">
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" asp-for="QueryParams.ImportFile">
+                                <label class="custom-file-label" asp-for="QueryParams.ImportFile">Choose file</label>
+                                <span asp-validation-for="QueryParams.ImportFile" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <input class="btn btn-primary" type="submit" value="Lookup" asp-page-handler="import" />
+                        </div>
+                    </div>
+                </form>
             </div>
-            <div class="row">
-                <div class="col">
-                    <input class="btn btn-primary" type="submit" value="Lookup" asp-page-handler="import" />
+            <div class="col-6">
+                <div class="row my-3">
+                    <div class="col">
+                        <h5>Ensure the Excel file contains, at a minimum, columns with the names:</h5>
+                        <ul>
+                            <li>Email</li>
+                            <li>Name (or First Name AND Last Name)</li>
+                            <li>Company</li>
+                        </ul></div>
                 </div>
             </div>
-            <div class="row my-2">
-                <div class="col"><hr /></div>
-            </div>
-
-        </form>
+        </div>
+        <div class="row my-2">
+            <div class="col"><hr/></div>
+        </div>
     </div>
     if (Model.Accounts.Count > 0)
     {
@@ -137,4 +152,13 @@ else
     <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.2.0.min.js"></script>
     <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.16.0/jquery.validate.min.js"></script>
     <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+    <script>
+        $('#QueryParams_ImportFile').on('change',function(){
+            //get the file name
+            var fileName = $(this).val().replace("C:\\fakepath\\", "");;
+            console.log(fileName);
+            //replace the "Choose a file" label
+            $(this).next('.custom-file-label').html(fileName);
+        })
+    </script>
 }

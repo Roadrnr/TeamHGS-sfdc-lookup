@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace TeamHGS_SFDCLookup.Models
+﻿namespace TeamHGS_SFDCLookup.Models
 {
     public class Person
     {
@@ -31,6 +26,14 @@ namespace TeamHGS_SFDCLookup.Models
         public int NameMatchCount { get; set; }
         public int EmailMatchCount { get; set; }
         public int CompanyNameMatchCount { get; set; }
+
+        public string LookupName { get; set; }
+        public string LookupFirst { get; set; }
+        public string LookupLast { get; set; }
+        public string LookupEmail { get; set; }
+        public string LookupAccountName { get; set; }
+        public string LookupTitle { get; set; }
+        public bool LookupOptOut { get; set; }
 
     }
 }

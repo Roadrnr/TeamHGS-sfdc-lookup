@@ -88,33 +88,29 @@ namespace TeamHGS_SFDCLookup.Services
                         break;
                     }
 
-                    //Create temporary result object
-                    var newPerson = new Person
+                    //Create temporary person object
+                    var lookupPerson = new Person
                     {
-                        Email = worksheet.Cells[row, emailColumn].Value != null ? worksheet.Cells[row, emailColumn].Value.ToString() : "",
-                        AccountName = worksheet.Cells[row, companyColumn].Value == null ? "" : worksheet.Cells[row, companyColumn].Value.ToString(),
-                        Title = worksheet.Cells[row, titleColumn].Value == null ? "" : worksheet.Cells[row, titleColumn].Value.ToString(),
-                        HasOptedOutOfEmail = worksheet.Cells[row, unsubColumn].Value == null ? false : true
+                        LookupEmail = worksheet.Cells[row, emailColumn].Value != null ? worksheet.Cells[row, emailColumn].Value.ToString() : "",
+                        LookupAccountName = worksheet.Cells[row, companyColumn].Value == null ? "" : worksheet.Cells[row, companyColumn].Value.ToString()
                     };
+
+                    if (titleColumn > 0)
+                        lookupPerson.LookupTitle = worksheet.Cells[row, titleColumn].Value == null
+                            ? ""
+                            : worksheet.Cells[row, titleColumn].Value.ToString();
+                    if (unsubColumn > 0) lookupPerson.LookupOptOut = worksheet.Cells[row, unsubColumn].Value != null;
 
                     if (searchByFullName)
                     {
-                        newPerson.Name = worksheet.Cells[row, nameColumn].Value != null ? worksheet.Cells[row, nameColumn].Value.ToString() : "";
+                        lookupPerson.LookupName = worksheet.Cells[row, nameColumn].Value != null ? worksheet.Cells[row, nameColumn].Value.ToString() : "";
                     }
                     else
                     {
-                        newPerson.First = worksheet.Cells[row, firstNameColumn].Value != null ? worksheet.Cells[row, firstNameColumn].Value.ToString() : "";
-                        newPerson.Last = worksheet.Cells[row, lastNameColumn].Value != null ? worksheet.Cells[row, lastNameColumn].Value.ToString() : "";
-                        newPerson.Name = $"{newPerson.First} {newPerson.Last}";
+                        lookupPerson.LookupFirst = worksheet.Cells[row, firstNameColumn].Value != null ? worksheet.Cells[row, firstNameColumn].Value.ToString() : "";
+                        lookupPerson.LookupLast = worksheet.Cells[row, lastNameColumn].Value != null ? worksheet.Cells[row, lastNameColumn].Value.ToString() : "";
+                        lookupPerson.LookupName = $"{lookupPerson.LookupFirst} {lookupPerson.LookupLast}";
                     }
-
-                    //Lookup this person in Salesforce
-                    var lookupPerson = new Person
-                    {
-                        Name = newPerson.Name,
-                        Email = newPerson.Email,
-                        AccountName = newPerson.AccountName
-                    };
 
                     var personResult = await _lookup.LookupContact(queryParameters, lookupPerson, sfdcCredential);
 
@@ -141,7 +137,14 @@ namespace TeamHGS_SFDCLookup.Services
                                 Industry_Vertical__c = $"{found.Industry_Vertical__c}",
                                 LeadSource = $"{found.LeadSource}",
                                 Title = $"{found.Title}",
-                                Description = $"{found.Description}"
+                                Description = $"{found.Description}",
+                                LookupName = lookupPerson.LookupName,
+                                LookupFirst = lookupPerson.LookupFirst,
+                                LookupLast = lookupPerson.LookupLast,
+                                LookupEmail = lookupPerson.LookupEmail,
+                                LookupAccountName = lookupPerson.LookupAccountName,
+                                LookupTitle = lookupPerson.LookupTitle,
+                                LookupOptOut = lookupPerson.LookupOptOut
                             };
 
                             importObj.Add(foundPerson);
@@ -168,16 +171,19 @@ namespace TeamHGS_SFDCLookup.Services
                             LeadSource = "",
                             Title = lookupPerson.Title,
                             Description = "",
+                            LookupName = lookupPerson.LookupName,
+                            LookupFirst = lookupPerson.LookupFirst,
+                            LookupLast = lookupPerson.LookupLast,
+                            LookupEmail = lookupPerson.LookupEmail,
+                            LookupAccountName = lookupPerson.LookupAccountName,
+                            LookupTitle = lookupPerson.LookupTitle,
+                            LookupOptOut = lookupPerson.LookupOptOut
                         };
-
                         importObj.Add(notFoundPerson);
                     }
-
                 } // End For Loop
-
                 return importObj;
             }
         }
-
     }
 }

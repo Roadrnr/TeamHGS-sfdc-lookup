@@ -7,6 +7,6 @@ namespace TeamHGS_SFDCLookup.Services
 {
     public interface IExportService
     {
-        FileContentResult ExportResults(List<Person> people);
+        FileContentResult ExportResults(List<Person> people, string fileName);
     }
 }

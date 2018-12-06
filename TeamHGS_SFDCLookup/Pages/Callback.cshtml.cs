@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Salesforce.Common;
-using Salesforce.Force;
 using System.Threading.Tasks;
-using TeamHGS_SFDCLookup.Models;
 
 namespace TeamHGS_SFDCLookup.Pages
 {
@@ -24,7 +21,7 @@ namespace TeamHGS_SFDCLookup.Pages
             await auth.WebServerAsync(
                 _config["Salesforce:ConsumerKey"],
                 _config["Salesforce:ConsumerSecret"],
-                "https://localhost:44346/callback",
+                _config["CallBackUrl"],
                 code,
                 _config["Salesforce:TokenUrl"]);
 

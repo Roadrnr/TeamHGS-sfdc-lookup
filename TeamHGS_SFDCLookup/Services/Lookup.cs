@@ -13,7 +13,7 @@ namespace TeamHGS_SFDCLookup.Services
             var client = new ForceClient(sfdCredential.InstanceUrl, sfdCredential.Token,
                 sfdCredential.ApiVersion);
 
-            var lookupEmail = lookupPerson.Email.Replace("'", @"\'");
+            var lookupEmail = lookupPerson.LookupEmail.Replace("'", @"\'");
 
             var query = "SELECT id, name, email, AccountId, Account.Name, Direct_Phone__c, Email_Invalid__c, HasOptedOutOfEmail, Industry_Vertical__c, LeadSource, Title, Description, Originating_Business_Unit__c FROM Contact";
             var useAnd = false;
@@ -22,7 +22,7 @@ namespace TeamHGS_SFDCLookup.Services
                 if (queryParams.Name)
                 {
                     useAnd = true;
-                    query = $"{query} WHERE name LIKE '%{lookupPerson.Name}%'";
+                    query = $"{query} WHERE name LIKE '%{lookupPerson.LookupName}%'";
                 }
 
                 if (queryParams.Email)
@@ -43,12 +43,12 @@ namespace TeamHGS_SFDCLookup.Services
                 {
                     if (useAnd)
                     {
-                        query = $"{query} AND Account.Name LIKE '%{lookupPerson.AccountName}%'";
+                        query = $"{query} AND Account.Name LIKE '%{lookupPerson.LookupAccountName}%'";
                     }
                     else
                     {
                         useAnd = true;
-                        query = $"{query} WHERE Account.Name LIKE '%{lookupPerson.AccountName}%'";
+                        query = $"{query} WHERE Account.Name LIKE '%{lookupPerson.LookupAccountName}%'";
                     }
 
                 }

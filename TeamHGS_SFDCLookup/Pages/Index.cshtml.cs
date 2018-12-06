@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Mvc;
@@ -46,7 +47,7 @@ namespace TeamHGS_SFDCLookup.Pages
                         _config["Salesforce:AuthUrl"], // if using sandbox org then replace login with test
                         ResponseTypes.Code,
                         _config["Salesforce:ConsumerKey"],
-                        HttpUtility.UrlEncode("https://localhost:44346/callback"),
+                        HttpUtility.UrlEncode(_config["CallBackUrl"]),
                         DisplayTypes.Popup);
             }
             else
@@ -86,17 +87,15 @@ namespace TeamHGS_SFDCLookup.Pages
             if (QueryParams.ImportFile.Length > 0)
             {
                 Accounts = await _importService.Import(QueryParams, SalesForceCredential);
+                return _exportService.ExportResults(Accounts, Path.GetFileNameWithoutExtension(QueryParams.ImportFile.FileName));
             }
-            else
-            {
-                var lookupPerson = new Person();
-                Accounts = await _lookup.LookupContact(QueryParams, lookupPerson, SalesForceCredential);
-            }
-            return _exportService.ExportResults(Accounts);
-            //return Page();
+
+            var lookupPerson = new Person();
+            Accounts = await _lookup.LookupContact(QueryParams, lookupPerson, SalesForceCredential);
+            return Page();
         }
 
-        public async Task<IActionResult> OnPostExportAsync()
+        public IActionResult OnPostExport()
         {
             //await _exportService.ExportResults();
             return Page();
