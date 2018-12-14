@@ -82,6 +82,7 @@ else
                     <div class="row">
                         <div class="col">
                             <input class="btn btn-primary" type="submit" value="Lookup" asp-page-handler="import" />
+                            <button type="submit" asp-page-handler="export" class="btn btn-primary">Export</button>
                         </div>
                     </div>
                 </form>
@@ -142,7 +143,7 @@ else
 
                 </tbody>
             </table>
-            <button type="submit" asp-page-handler="export">Export</button>
+            
         </form>
     </div>
     }
@@ -156,7 +157,6 @@ else
         $('#QueryParams_ImportFile').on('change',function(){
             //get the file name
             var fileName = $(this).val().replace("C:\\fakepath\\", "");;
-            console.log(fileName);
             //replace the "Choose a file" label
             $(this).next('.custom-file-label').html(fileName);
         })

@@ -24,7 +24,6 @@
 
   <ItemGroup>
     <Folder Include="Areas\" />
-    <Folder Include="NewFolder\" />
   </ItemGroup>
 
 </Project>

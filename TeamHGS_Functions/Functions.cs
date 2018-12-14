@@ -1,26 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using System.Net.Http;
+using Microsoft.Extensions.Primitives;
+using TeamHGS_Functions.Models;
+using System.Collections.Generic;
 using OfficeOpenXml;
-using TeamHGS_SFDCLookup.Models;
+using Salesforce.Force;
 
-namespace TeamHGS_SFDCLookup.Services
+namespace TeamHGS_Functions
 {
-    public class ImportService : IImportService
+    public static class Function1
     {
-        private readonly ILookup _lookup;
 
-        public ImportService(ILookup lookup)
+        private static HttpClient httpClient = new HttpClient();
+
+        [FunctionName("Function1")]
+        public static async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+            ILogger log)
         {
-            _lookup = lookup;
+            log.LogInformation("C# HTTP trigger function processed a request.");
+
+            string name = req.Query["name"];
+
+            var client = new ForceClient(sfdCredential.InstanceUrl, sfdCredential.Token,
+                sfdCredential.ApiVersion);
+
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            dynamic data = JsonConvert.DeserializeObject(requestBody);
+            name = name ?? data?.name;
+
+            return name != null
+                ? (ActionResult)new OkObjectResult($"Hello, {name}")
+                : new BadRequestObjectResult("Please pass a name on the query string or in the request body");
         }
-        public async Task<List<Person>> Import(QueryParameters queryParameters, SalesForceCredential sfdcCredential)
+
+        [FunctionName("Function2")]
+        public static async Task<IActionResult> RunFunction2([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+            ILogger log)
         {
+            var received = req.Form.TryGetValue("Token", out StringValues strToken);
+            //req.Form.TryGetValue("files", out ByteArrayContent excelFile);
+            var excelFile = req.Form.Files.GetFile("files");
+
             //Get file
-            var newFile = new FileInfo(queryParameters.ImportFile.FileName);
+            var newFile = new FileInfo(excelFile.FileName);
 
             //Establish import and error objects
             var importObj = new List<Person>();
@@ -29,10 +60,10 @@ namespace TeamHGS_SFDCLookup.Services
             if (!newFile.Extension.Contains(".xls")) throw new Exception("File must be in Excel format.");
 
             //Create an excel package
-            using (var package = new ExcelPackage(queryParameters.ImportFile.OpenReadStream()))
+            using (var package = new ExcelPackage(excelFile.OpenReadStream()))
             {
                 //Get the first worksheet in the file
-                var worksheet = package.Workbook.Worksheets.First();
+                var worksheet = package.Workbook.Worksheets[1];
 
                 //Set rowcount, colcount and variables for the required columns
                 var rowCount = worksheet.Dimension.Rows;
@@ -113,6 +144,9 @@ namespace TeamHGS_SFDCLookup.Services
                         lookupPerson.LookupName = $"{lookupPerson.LookupFirst} {lookupPerson.LookupLast}";
                     }
 
+                    var response = await httpClient.PostAsync("http://localhost:7071/api/Function1");
+                    var jsonResponse = JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync());
+
                     var personResult = await _lookup.LookupContact(queryParameters, lookupPerson, sfdcCredential);
 
                     if (personResult != null && personResult.Count > 0)
@@ -185,12 +219,16 @@ namespace TeamHGS_SFDCLookup.Services
                 } // End For Loop
                 return importObj;
             }
+
+            var response = await httpClient.GetAsync("https://jsonplaceholder.typicode.com/todos/1");
+            var jsonResponse = JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync());
+            await Task.Delay(1000);
+            return new OkObjectResult($"Function 2 Ran - Response: {jsonResponse}");
         }
 
-        public async Task<int> ImportBackgroundTest(CancellationToken token)
+        private void ProcessFile(IFormFile file)
         {
-            await Task.Delay(TimeSpan.FromSeconds(30), token);
-            return 30;
+            
         }
     }
 }
