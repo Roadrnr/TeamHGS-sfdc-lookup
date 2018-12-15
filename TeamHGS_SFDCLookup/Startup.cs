@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using TeamHGS_SFDCLookup.Services;
 using ForceClient = Salesforce.Force.ForceClient;
 using IForceClient = Salesforce.Force.IForceClient;
+using TeamHGS_SFDCLookup.Models;
+using Microsoft.EntityFrameworkCore;
+using Hangfire;
 
 namespace TeamHGS_SFDCLookup
 {
@@ -32,11 +35,24 @@ namespace TeamHGS_SFDCLookup
             });
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddSalesforce(options =>
+                {
+                    options.AuthorizationEndpoint = Configuration["Salesforce:AuthUrl"];
+                    options.ClientId = Configuration["Salesforce:ConsumerKey"];
+                    options.ClientSecret = Configuration["Salesforce:ConsumerSecret"];
+                    options.CallbackPath = "/callback";
+                    options.SaveTokens = true;
+                    options.TokenEndpoint = Configuration["Salesforce:TokenUrl"];
+                })
                 .AddJwtBearer(options =>
                 {
                     options.Authority = Configuration["Salesforce:AuthUrl"];
                     options.Audience = "https://localhost:44346";
                 });
+
+            // Add framework services.
+            services.AddDbContext<TeamHGS_SFDCLookupContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("TeamHGS_SFDCLookupContextConnection")));
 
             services.AddTransient<IForceClient, ForceClient>();
             services.AddTransient<ILookup, Lookup>();
@@ -44,6 +60,7 @@ namespace TeamHGS_SFDCLookup
             services.AddTransient<IExportService, ExportService>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddSingleton<ITempDataProvider, CookieTempDataProvider>();
+            services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString("TeamHGS_SFDCLookupContextConnection")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -64,6 +81,8 @@ namespace TeamHGS_SFDCLookup
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseAuthentication();
+            app.UseHangfireServer();
+            app.UseHangfireDashboard();
             app.UseMvc();
         }
     }

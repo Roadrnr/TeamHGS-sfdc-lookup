@@ -25,7 +25,7 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
-                    @if (!Model.IsAuthenticated)
+                    @*@if (!Model.IsAuthenticated)
                     {
                         <ul class="navbar-nav ml-auto">
                             <li>
@@ -37,10 +37,12 @@
                     {
                         <ul class="navbar-nav ml-auto">
                             <li>
-                                <a class="nav-link active" asp-page="GetRefreshToken" asp-route-token="@Model.SalesForceCredential.RefreshToken">Logged In</a></li>
+                                <a class="nav-link active" asp-page="GetRefreshToken" asp-route-token="@Model.SalesForceCredential.RefreshToken">Logged In</a>
+                            </li>
                         </ul>
-                    }
-                    </div>
+                    }*@
+                </div>
+                <partial name="_LoginPartial" />
             </div>
         </nav>
     </header>
