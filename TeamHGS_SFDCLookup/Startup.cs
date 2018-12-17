@@ -12,6 +12,13 @@ using IForceClient = Salesforce.Force.IForceClient;
 using TeamHGS_SFDCLookup.Models;
 using Microsoft.EntityFrameworkCore;
 using Hangfire;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using System.Collections.Generic;
+using System;
+using System.Threading.Tasks;
+using TeamHGS_SFDCLookup.Areas.Identity.Data;
+using Microsoft.AspNetCore.Identity;
 
 namespace TeamHGS_SFDCLookup
 {
@@ -34,20 +41,15 @@ namespace TeamHGS_SFDCLookup
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            services.AddAuthentication()
                 .AddSalesforce(options =>
                 {
                     options.AuthorizationEndpoint = Configuration["Salesforce:AuthUrl"];
                     options.ClientId = Configuration["Salesforce:ConsumerKey"];
                     options.ClientSecret = Configuration["Salesforce:ConsumerSecret"];
-                    options.CallbackPath = "/callback";
+                    options.CallbackPath = "/signin-salesforce";
                     options.SaveTokens = true;
                     options.TokenEndpoint = Configuration["Salesforce:TokenUrl"];
-                })
-                .AddJwtBearer(options =>
-                {
-                    options.Authority = Configuration["Salesforce:AuthUrl"];
-                    options.Audience = "https://localhost:44346";
                 });
 
             // Add framework services.

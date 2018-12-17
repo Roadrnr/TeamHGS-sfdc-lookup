@@ -16,7 +16,7 @@ namespace TeamHGS_SFDCLookup.Services
         {
             _lookup = lookup;
         }
-        public async Task<List<Person>> Import(QueryParameters queryParameters, SalesForceCredential sfdcCredential)
+        public List<Person> Import(QueryParameters queryParameters, SalesForceCredential sfdcCredential)
         {
             //Get file
             var newFile = new FileInfo(queryParameters.ImportFile.FileName);
@@ -112,7 +112,8 @@ namespace TeamHGS_SFDCLookup.Services
                         lookupPerson.LookupName = $"{lookupPerson.LookupFirst} {lookupPerson.LookupLast}";
                     }
 
-                    var personResult = await _lookup.LookupContact(queryParameters, lookupPerson, sfdcCredential);
+                    var personResult = Task.Run(async() => 
+                        await _lookup.LookupContact(queryParameters, lookupPerson, sfdcCredential)).Result;
 
                     if (personResult != null && personResult.Count > 0)
                     {

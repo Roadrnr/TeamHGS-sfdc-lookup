@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using System.Web;
+using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
@@ -86,7 +87,8 @@ namespace TeamHGS_SFDCLookup.Pages
 
             if (QueryParams.ImportFile.Length > 0)
             {
-                Accounts = await _importService.Import(QueryParams, SalesForceCredential);
+                var jobId = BackgroundJob.Enqueue(() => _importService.Import(QueryParams, SalesForceCredential));
+                //Accounts = await _importService.Import(QueryParams, SalesForceCredential);
                 return _exportService.ExportResults(Accounts, Path.GetFileNameWithoutExtension(QueryParams.ImportFile.FileName));
             }
 

@@ -69,6 +69,7 @@ namespace TeamHGS_SFDCLookup.Services
             }
 
             query = $"{query} ORDER BY name";
+
             var contacts = await client.QueryAsync<Person>(query);
             foreach (var c in contacts.Records)
             {
