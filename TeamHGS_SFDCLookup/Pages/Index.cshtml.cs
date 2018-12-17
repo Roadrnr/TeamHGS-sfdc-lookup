@@ -19,6 +19,7 @@ namespace TeamHGS_SFDCLookup.Pages
         private readonly ILookup _lookup;
         private readonly IImportService _importService;
         private readonly IExportService _exportService;
+        private readonly IAzureStorageService _fileStorage;
 
         public bool IsAuthenticated { get; set; }
         public string ReturnUrl { get; set; }
@@ -29,12 +30,13 @@ namespace TeamHGS_SFDCLookup.Pages
         public List<Person> Accounts { get; set; }
         public SalesForceCredential SalesForceCredential { get; set; }
 
-        public IndexModel(IConfiguration config, ILookup lookup, IImportService importService, IExportService exportService)
+        public IndexModel(IConfiguration config, ILookup lookup, IImportService importService, IExportService exportService, IAzureStorageService fileStorage)
         {
             _config = config;
             _lookup = lookup;
             _importService = importService;
             _exportService = exportService;
+            _fileStorage = fileStorage;
             Accounts = new List<Person>();
         }
 
@@ -87,6 +89,7 @@ namespace TeamHGS_SFDCLookup.Pages
 
             if (QueryParams.ImportFile.Length > 0)
             {
+                var fileLocation = await _fileStorage.StoreAndGetFile(QueryParams.ImportFile.FileName, "excelimport", QueryParams.ImportFile);
                 var jobId = BackgroundJob.Enqueue(() => _importService.Import(QueryParams, SalesForceCredential));
                 //Accounts = await _importService.Import(QueryParams, SalesForceCredential);
                 return _exportService.ExportResults(Accounts, Path.GetFileNameWithoutExtension(QueryParams.ImportFile.FileName));

@@ -28,6 +28,7 @@ namespace TeamHGS_SFDCLookup.Pages
                 return Page();
             }
             
+
             await auth.WebServerAsync(
                 _config["Salesforce:ConsumerKey"],
                 _config["Salesforce:ConsumerSecret"],

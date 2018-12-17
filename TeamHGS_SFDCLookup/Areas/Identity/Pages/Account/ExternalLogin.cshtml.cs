@@ -9,7 +9,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Salesforce.Common;
 using TeamHGS_SFDCLookup.Areas.Identity.Data;
 
 namespace TeamHGS_SFDCLookup.Areas.Identity.Pages.Account
@@ -19,15 +21,18 @@ namespace TeamHGS_SFDCLookup.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<LookupUser> _signInManager;
         private readonly UserManager<LookupUser> _userManager;
+        private readonly IConfiguration _config;
         private readonly ILogger<ExternalLoginModel> _logger;
 
         public ExternalLoginModel(
             SignInManager<LookupUser> signInManager,
             UserManager<LookupUser> userManager,
+            IConfiguration config,
             ILogger<ExternalLoginModel> logger)
         {
             _signInManager = signInManager;
             _userManager = userManager;
+            _config = config;
             _logger = logger;
         }
 
@@ -91,6 +96,18 @@ namespace TeamHGS_SFDCLookup.Areas.Identity.Pages.Account
                 await _signInManager.SignInAsync(user, props, info.LoginProvider);
 
                 _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
+                var claims = info.Principal.Claims.ToList();
+                var instance_url = claims.Where(c => c.Type == "urn:salesforce:rest_url").Select(c => c.Value)
+                    .SingleOrDefault();
+                var tempUrl = new Uri(instance_url);
+                var finalUrl = tempUrl.GetLeftPart(UriPartial.Authority);
+                var auth = new AuthenticationClient();
+
+                if (TempData["InstanceUrl"] == null) TempData["InstanceUrl"] = finalUrl;
+                if (TempData["RefreshToken"] == null) TempData["RefreshToken"] = props.GetTokenValue("refresh_token");
+                if (TempData["Token"] == null) TempData["Token"] = props.GetTokenValue("access_token");
+                if (TempData["ApiVersion"] == null) TempData["ApiVersion"] = auth.ApiVersion;
+
                 return LocalRedirect(returnUrl);
             }
             if (result.IsLockedOut)

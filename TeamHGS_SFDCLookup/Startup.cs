@@ -60,6 +60,7 @@ namespace TeamHGS_SFDCLookup
             services.AddTransient<ILookup, Lookup>();
             services.AddTransient<IImportService, ImportService>();
             services.AddTransient<IExportService, ExportService>();
+            services.AddTransient<IAzureStorageService, AzureStorageService>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddSingleton<ITempDataProvider, CookieTempDataProvider>();
             services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString("TeamHGS_SFDCLookupContextConnection")));
