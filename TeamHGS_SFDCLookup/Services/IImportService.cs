@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Mvc;
 using TeamHGS_SFDCLookup.Models;
 
 namespace TeamHGS_SFDCLookup.Services
 {
     public interface IImportService
     {
-        List<Person> Import(QueryParameters queryParameters, SalesForceCredential sfdcCredential);
+        string Import(QueryParameters queryParameters, SalesForceCredential sfdcCredential);
     }
 }

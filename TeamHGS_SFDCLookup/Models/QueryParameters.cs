@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 
 namespace TeamHGS_SFDCLookup.Models
 {
@@ -14,5 +13,6 @@ namespace TeamHGS_SFDCLookup.Models
         public Enums.QueryObject QueryObject { get; set; }
         [Required]
         public IFormFile ImportFile { get; set; }
+        public string ImportFileUrl { get; set; }
     }
 }

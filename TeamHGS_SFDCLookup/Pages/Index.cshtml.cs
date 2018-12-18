@@ -89,10 +89,11 @@ namespace TeamHGS_SFDCLookup.Pages
 
             if (QueryParams.ImportFile.Length > 0)
             {
-                var fileLocation = await _fileStorage.StoreAndGetFile(QueryParams.ImportFile.FileName, "excelimport", QueryParams.ImportFile);
+                QueryParams.ImportFileUrl = await _fileStorage.StoreAndGetFile(QueryParams.ImportFile.FileName, "excelimport", QueryParams.ImportFile);
+                QueryParams.ImportFile = null;
                 var jobId = BackgroundJob.Enqueue(() => _importService.Import(QueryParams, SalesForceCredential));
-                //Accounts = await _importService.Import(QueryParams, SalesForceCredential);
-                return _exportService.ExportResults(Accounts, Path.GetFileNameWithoutExtension(QueryParams.ImportFile.FileName));
+                //Accounts = _importService.Import(QueryParams, SalesForceCredential);
+                return RedirectToPage("Hangfire");
             }
 
             var lookupPerson = new Person();

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
@@ -119,6 +121,31 @@ namespace TeamHGS_SFDCLookup.Services
             return uploadFile.Uri.ToString();
         }
 
+        public async Task<string> StoreAndGetFile(string filename, string container, FileContentResult file)
+        {
+            await GetContainer(container);
+            // Get a reference to a blob named filename.
+            var uploadFile = _container.GetBlockBlobReference(filename);
+
+            if (await uploadFile.ExistsAsync())
+            {
+                await uploadFile.FetchAttributesAsync();
+                if (uploadFile.Properties.Length == file.FileContents.Length)
+                {
+                    uploadFile = _container.GetBlockBlobReference(filename.GetUniqueName());
+                }
+            }
+
+            uploadFile.Properties.ContentType = file.ContentType;
+
+            // Create or overwrite the filename blob with the contents of a local file
+            // named filename.
+
+            await uploadFile.UploadFromByteArrayAsync(file.FileContents, 0, file.FileContents.Length);
+
+            return uploadFile.Uri.ToString();
+        }
+
         public async Task<string> GetFile(string filename, string containerName)
         {
             var url = $"{_config["BlobService:StorageUrl"]}{containerName}/";
@@ -145,6 +172,13 @@ namespace TeamHGS_SFDCLookup.Services
                     
             }
             return $"{url}{filename}";
+        }
+
+        public async Task<Stream> StreamFile(string filename, string containerName)
+        {
+            await GetContainer(containerName);
+            var file = _container.GetBlockBlobReference(filename);
+            return await file.OpenReadAsync();
         }
 
         public async Task DeleteFile(string filename, string containerName)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using TeamHGS_SFDCLookup.Models;
 
@@ -11,24 +12,32 @@ namespace TeamHGS_SFDCLookup.Services
     public class ImportService : IImportService
     {
         private readonly ILookup _lookup;
+        private readonly IExportService _exportService;
+        private readonly IAzureStorageService _storageService;
 
-        public ImportService(ILookup lookup)
+        public ImportService(ILookup lookup, IExportService exportService, IAzureStorageService storageService)
         {
             _lookup = lookup;
+            _exportService = exportService;
+            _storageService = storageService;
         }
-        public List<Person> Import(QueryParameters queryParameters, SalesForceCredential sfdcCredential)
+        public string Import(QueryParameters queryParameters, SalesForceCredential sfdcCredential)
         {
             //Get file
-            var newFile = new FileInfo(queryParameters.ImportFile.FileName);
+            var fileName = Path.GetFileName(queryParameters.ImportFileUrl);
+            
+            //var fileStream = Task.Run(async () => await _storageService.StreamFile(filename, "excelimport")).Result;
+            var newFile = new FileInfo(fileName);
+            //Check if file is an Excel File
+            if (!newFile.Extension.Contains(".xls")) throw new Exception("File must be in Excel format.");
+
 
             //Establish import and error objects
             var importObj = new List<Person>();
 
-            //Check if file is an Excel File
-            if (!newFile.Extension.Contains(".xls")) throw new Exception("File must be in Excel format.");
-
+            //CloudBlobContainer container = _storageService.;
             //Create an excel package
-            using (var package = new ExcelPackage(queryParameters.ImportFile.OpenReadStream()))
+            using (var package = new ExcelPackage(Task.Run(async () => await _storageService.StreamFile(fileName, "excelimport")).Result))
             {
                 //Get the first worksheet in the file
                 var worksheet = package.Workbook.Worksheets.First();
@@ -99,7 +108,8 @@ namespace TeamHGS_SFDCLookup.Services
                         lookupPerson.LookupTitle = worksheet.Cells[row, titleColumn].Value == null
                             ? ""
                             : worksheet.Cells[row, titleColumn].Value.ToString();
-                    if (unsubColumn > 0) lookupPerson.LookupOptOut = worksheet.Cells[row, unsubColumn].Value != null;
+                    if (unsubColumn > 0)
+                        lookupPerson.LookupOptOut = worksheet.Cells[row, unsubColumn].Value != null;
 
                     if (searchByFullName)
                     {
@@ -183,7 +193,11 @@ namespace TeamHGS_SFDCLookup.Services
                         importObj.Add(notFoundPerson);
                     }
                 } // End For Loop
-                return importObj;
+                
+                var resultFile = _exportService.ExportResults(importObj, Path.GetFileNameWithoutExtension(fileName));
+                var resultUrl = Task.Run(async () => await _storageService.StoreAndGetFile(resultFile.FileDownloadName, "excelimport", resultFile)).Result;
+                return resultUrl;
+                //return importObj;
             }
         }
     }
